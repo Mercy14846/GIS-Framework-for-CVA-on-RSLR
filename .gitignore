@@ -5,3 +5,10 @@ data/raw/
 data/processed/
 *.tif
 .DS_Store
+*.tsbuildinfo
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.env.*
+!.env.example

@@ -11,6 +11,7 @@ from coastal_dss.services.assessment import Assessment, class_label
 def cells_geojson(provider: DataProvider, a: Assessment) -> dict:
     g = provider.grid
     elev = provider.elevation_m()
+    pop = provider.population()
     sea = provider.sea_mask()
     feats = []
     for i in range(g.ny):
@@ -49,6 +50,7 @@ def cells_geojson(provider: DataProvider, a: Assessment) -> dict:
                         "depth_m": round(depth, 2),
                         "elevation_m": round(float(elev[i, j]), 2),
                         "rslr_m": round(float(a.rslr[i, j]), 2),
+                        "population": int(pop[i, j]),
                         "cvi": round(float(a.cvi[i, j]), 2),
                         "cvi_class": int(a.cvi_class[i, j]),
                         "cvi_label": class_label(int(a.cvi_class[i, j])),

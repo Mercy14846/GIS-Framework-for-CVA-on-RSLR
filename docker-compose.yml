@@ -1,0 +1,27 @@
+# One command: `docker compose up --build`  ->  viewer at http://localhost:8080
+services:
+  api:
+    build: { context: ., dockerfile: deployment/api.Dockerfile }
+    env_file: [.env.example]
+    ports: ["8000:8000"]
+    depends_on: [db, redis]
+
+  web:
+    build: { context: ., dockerfile: deployment/web.Dockerfile }
+    ports: ["8080:80"]
+    depends_on: [api]
+
+  # Used once the PostGIS-backed provider is enabled (DSS_DATA_MODE=raster).
+  db:
+    image: postgis/postgis:16-3.4
+    environment: { POSTGRES_USER: dss, POSTGRES_PASSWORD: dss, POSTGRES_DB: dss }
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/coastal_dss/database/migrations:/docker-entrypoint-initdb.d:ro
+    ports: ["5432:5432"]
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  pgdata:
