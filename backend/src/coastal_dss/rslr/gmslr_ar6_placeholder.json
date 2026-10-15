@@ -1,0 +1,6 @@
+{
+  "_note": "PLACEHOLDER medians (m, relative to 1995-2014) rounded from IPCC AR6 global tables. Replace with the AR6 sea-level projection for the Lagos grid point (NASA Sea Level Projection Tool) before any real analysis.",
+  "baseline_year": 2005,
+  "ssp245": {"2005": 0.0, "2030": 0.09, "2050": 0.20, "2100": 0.56},
+  "ssp585": {"2005": 0.0, "2030": 0.10, "2050": 0.23, "2100": 0.77}
+}
