@@ -20,6 +20,8 @@ dependencies = [
 dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.4"]
 geo = ["rasterio>=1.3", "geopandas>=0.14", "pyproj>=3.6", "shapely>=2.0"]
 jobs = ["celery>=5.3", "redis>=5"]
+# USGS M2M download (httpx) and raster processing for DSS_DATA_MODE=raster (rasterio).
+ingest = ["httpx>=0.27", "rasterio>=1.3"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

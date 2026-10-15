@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from coastal_dss import __version__
 from coastal_dss.core.config import get_settings
 from coastal_dss.ingestion.catalogue import CATALOGUE
+from coastal_dss.providers import get_provider
 from coastal_dss.scenarios.registry import available
 from coastal_dss.services.assessment import default_weights
 
@@ -28,3 +29,10 @@ def scenarios() -> dict:
 @router.get("/layers")
 def layers() -> list[dict]:
     return [r.to_dict() for r in CATALOGUE]
+
+
+@router.get("/sources")
+def sources() -> dict:
+    """Where each analysis layer comes from: observed, derived or a synthetic placeholder."""
+    p = get_provider()
+    return {"data_mode": p.mode, "layers": p.sources()}

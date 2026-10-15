@@ -20,3 +20,6 @@ WATER_LEVEL_STEP_M: float = 0.25
 # PLACEHOLDER: height of Lagos MHHW above the elevation datum (MSL), from the ~1 m
 # semi-diurnal tidal range. Replace with the Lagos tide-gauge datum before using results.
 LAGOS_MHHW_M: float = 0.5
+
+# Study area (lon0, lat0, lon1, lat1): central Lagos, Ojo to Lekki, with the Atlantic to the south.
+STUDY_AREA: tuple[float, float, float, float] = (3.20, 6.35, 3.75, 6.65)

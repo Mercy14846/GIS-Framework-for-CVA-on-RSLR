@@ -18,6 +18,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [opacity, setOpacity] = useState(0.85);
   const [shared, setShared] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const initial = useRef<[number, number]>([view.lng, view.lat]);
   const initialZoom = useRef(view.zoom);
 
@@ -30,6 +31,8 @@ export default function App() {
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, [view.pathway, view.year, view.subsidence, view.waterLevel]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const synthetic = (data?.sources ?? []).filter((s) => s.status === "synthetic");
 
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); } catch { /* clipboard unavailable */ }
@@ -47,6 +50,11 @@ export default function App() {
       {data?.data_mode === "demo" && (
         <div className="demo" role="note">Demonstration data: synthetic placeholder layers, not real measurements for Lagos.</div>
       )}
+      {data && data.data_mode !== "demo" && synthetic.length > 0 && (
+        <div className="demo" role="note">
+          USGS remote-sensing layers loaded. Still synthetic placeholders: {synthetic.map((s) => s.label).join(", ")}.
+        </div>
+      )}
       <TabRail tab={view.tab} onChange={(tab) => update({ tab })} />
       <main className="stage">
         <MapView
@@ -58,12 +66,22 @@ export default function App() {
           opacity={opacity}
           onMove={(lng, lat, zoom) => update({ lng, lat, zoom })}
         />
-        <HorizonSlider year={view.year} onChange={(year) => update({ year })} />
-        {view.tab !== "vulnerability" && (
-          <WaterLevelSlider value={view.waterLevel} onChange={(m) => update({ waterLevel: snapWaterLevel(m) })} />
-        )}
-        <ControlPanel view={view} opacity={opacity} onChange={update} onOpacity={setOpacity} onShare={share} shared={shared} />
-        {view.tab === "scenarios" ? <ComparePanel view={view} /> : <Legend tab={view.tab} />}
+        <div className="slider-strip">
+          <HorizonSlider year={view.year} onChange={(year) => update({ year })} />
+          {view.tab !== "vulnerability" && (
+            <WaterLevelSlider value={view.waterLevel} onChange={(m) => update({ waterLevel: snapWaterLevel(m) })} />
+          )}
+        </div>
+        {/* On narrow screens the legend and controls collapse into a bottom sheet; on desktop the wrappers are display: contents. */}
+        <div className={`sheet ${sheetOpen ? "open" : ""}`}>
+          <button className="sheet-toggle" aria-expanded={sheetOpen} aria-controls="sheet-body" onClick={() => setSheetOpen((o) => !o)}>
+            {sheetOpen ? "Hide legend & controls" : "Legend & controls"}
+          </button>
+          <div className="sheet-body" id="sheet-body">
+            <ControlPanel view={view} opacity={opacity} onChange={update} onOpacity={setOpacity} onShare={share} shared={shared} sources={data?.sources ?? []} />
+            {view.tab === "scenarios" ? <ComparePanel view={view} /> : <Legend tab={view.tab} />}
+          </div>
+        </div>
         {error && <div className="error" role="alert">{error}</div>}
         <SummaryPanel s={data?.summary ?? null} loading={loading} />
       </main>

@@ -35,9 +35,25 @@ export interface Summary {
   water_level_m: number;
 }
 
+export type SourceStatus = "observed" | "derived" | "synthetic";
+
+/** Where one analysis layer comes from (GET /api/v1/sources, also on every assessment). */
+export interface DataSource {
+  layer: string;
+  label: string;
+  status: SourceStatus;
+  source: string;
+  dataset?: string;
+  scenes?: string[];
+  method?: string;
+  units?: string;
+  note?: string;
+}
+
 export interface AssessmentResponse {
   scenario: { pathway: Pathway; year: number; subsidence: boolean; water_level: number };
   data_mode: string;
+  sources: DataSource[];
   bbox: [number, number, number, number];
   summary: Summary;
   cells: GeoJSON.FeatureCollection;

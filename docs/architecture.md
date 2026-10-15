@@ -49,6 +49,7 @@ flowchart LR
 | `GET /health` | Status, version, data mode |
 | `GET /scenarios` | Pathways, horizons, AHP weights and consistency ratio |
 | `GET /layers` | Dataset catalogue with provenance |
+| `GET /sources` | Per-layer source of the running provider: observed, derived or synthetic |
 | `GET /assessment?pathway&year&subsidence` | Summary statistics and GeoJSON cells |
 | `GET /impact?pathway&year&subsidence` | Exposure statistics only (no geometry) |
 | `GET /compare?year` | Summaries across pathways with and without subsidence |
@@ -62,9 +63,12 @@ Esri fallback when no token is set).
 
 ## From demo to real data
 
-1. Implement `RasterProvider` (same protocol) reading GeoTIFFs or PostGIS.
-2. Register layers in the catalogue and set their `status`.
-3. Set `DSS_DATA_MODE=raster`. No change to services, API or UI.
+1. `python -m coastal_dss.ingestion all` fetches SRTM and Landsat C2 L2 through the USGS M2M
+   API (`ingestion/usgs_m2m.py`, `usgs_fetch.py`) and builds analysis-grid GeoTIFFs with a
+   provenance `manifest.json` (`ingestion/process.py`).
+2. `RasterProvider` (same protocol) reads them; layers not yet ingested fall back to the demo
+   layer and are reported as `synthetic` by `GET /sources` and in every assessment.
+3. Set `DSS_DATA_MODE=raster`. No change to services or the science modules.
 4. Replace placeholder GMSLR (IPCC AR6) and AHP priorities.
 5. Add validation against flood records and Sentinel-1/2 extents.
 

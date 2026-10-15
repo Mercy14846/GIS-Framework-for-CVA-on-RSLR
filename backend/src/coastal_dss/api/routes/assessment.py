@@ -34,6 +34,7 @@ def get_assessment(
     return {
         "scenario": _echo(pathway, year, subsidence, water_level),
         "data_mode": p.mode,
+        "sources": p.sources(),
         "bbox": bbox(p),
         "summary": a.summary,
         "cells": cells_geojson(p, a),

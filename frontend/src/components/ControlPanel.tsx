@@ -1,4 +1,5 @@
-import { BASEMAPS, BASEMAP_LABEL, PATHWAY_LABEL, type Pathway, type ViewState } from "../types";
+import { BASEMAPS, BASEMAP_LABEL, PATHWAY_LABEL, type DataSource, type Pathway, type ViewState } from "../types";
+import DataSources from "./DataSources";
 
 interface Props {
   view: ViewState;
@@ -7,9 +8,10 @@ interface Props {
   onOpacity: (v: number) => void;
   onShare: () => void;
   shared: boolean;
+  sources: DataSource[];
 }
 
-export default function ControlPanel({ view, opacity, onChange, onOpacity, onShare, shared }: Props) {
+export default function ControlPanel({ view, opacity, onChange, onOpacity, onShare, shared, sources }: Props) {
   return (
     <aside className="panel controls" aria-label="Scenario controls">
       <div className="field">
@@ -44,6 +46,7 @@ export default function ControlPanel({ view, opacity, onChange, onOpacity, onSha
         <input id="op" type="range" min={0.2} max={1} step={0.05} value={opacity} onChange={(e) => onOpacity(Number(e.target.value))} />
       </div>
       <button className="btn" onClick={onShare}>{shared ? "Link copied" : "Share this view"}</button>
+      <DataSources sources={sources} />
     </aside>
   );
 }

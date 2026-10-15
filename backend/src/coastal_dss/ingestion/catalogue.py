@@ -31,7 +31,7 @@ CATALOGUE: tuple[DatasetRecord, ...] = (
     DatasetRecord(
         "dem",
         "Digital Elevation Model",
-        "SRTM or Copernicus DEM",
+        "USGS SRTM 1 Arc-Second Global, via the M2M API",
         "30 m",
         "EPSG:4326",
         "static",
@@ -72,7 +72,7 @@ CATALOGUE: tuple[DatasetRecord, ...] = (
     DatasetRecord(
         "imagery",
         "Satellite imagery",
-        "Sentinel-2; Landsat",
+        "USGS Landsat 4-5 TM and 8-9 OLI Collection 2 Level-2, via the M2M API",
         "10-30 m",
         "EPSG:32631",
         "multi-date",

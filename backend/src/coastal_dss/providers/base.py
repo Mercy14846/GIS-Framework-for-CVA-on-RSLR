@@ -48,3 +48,18 @@ class DataProvider(Protocol):
     def indicator_layers(self) -> dict[str, tuple[np.ndarray, bool]]:
         """Raw non-RSLR indicators as {name: (values, invert)}; invert=True when low = vulnerable."""
         ...
+    def sources(self) -> list[dict]:
+        """Provenance per layer: {layer, label, status: observed|derived|synthetic, source, ...}."""
+        ...
+
+
+LAYER_LABELS: dict[str, str] = {
+    "elevation": "Elevation",
+    "slope": "Slope",
+    "sea_mask": "Sea and lagoon",
+    "built_up": "Built-up area",
+    "geomorphology": "Coastal geomorphology",
+    "shoreline_change": "Shoreline change",
+    "population": "Population",
+    "subsidence": "Land subsidence",
+}

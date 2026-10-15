@@ -10,15 +10,24 @@ from functools import cached_property
 import numpy as np
 from scipy import ndimage
 
-from coastal_dss.providers.base import Grid
+from coastal_dss.core.constants import STUDY_AREA
+from coastal_dss.providers.base import LAYER_LABELS, Grid
 
 
 class DemoProvider:
     mode = "demo"
-    grid = Grid(lon0=3.20, lat0=6.35, lon1=3.75, lat1=6.65, nx=60, ny=40)
+    grid = Grid(*STUDY_AREA, nx=60, ny=40)
 
-    def __init__(self, seed: int = 7) -> None:
+    def __init__(self, seed: int = 7, grid: Grid | None = None) -> None:
         self._rng = np.random.default_rng(seed)
+        if grid is not None:
+            self.grid = grid
+
+    def sources(self) -> list[dict]:
+        return [
+            {"layer": k, "label": v, "status": "synthetic", "source": "Synthetic placeholder"}
+            for k, v in LAYER_LABELS.items()
+        ]
 
     @cached_property
     def _xy(self) -> tuple[np.ndarray, np.ndarray]:
