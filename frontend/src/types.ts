@@ -1,8 +1,11 @@
 export type Tab = "rslr" | "vulnerability" | "impact" | "scenarios";
+export const TABS: Tab[] = ["rslr", "vulnerability", "impact", "scenarios"];
 export type Basemap = "satellite" | "streets" | "dark" | "light";
 export const BASEMAPS: Basemap[] = ["satellite", "streets", "dark", "light"];
 export const BASEMAP_LABEL: Record<Basemap, string> = { satellite: "Satellite", streets: "Streets", dark: "Dark", light: "Light" };
 export type Pathway = "ssp245" | "ssp585";
+export const PATHWAY_LABEL: Record<Pathway, string> = { ssp245: "SSP2-4.5", ssp585: "SSP5-8.5" };
+export const PATHWAYS = Object.keys(PATHWAY_LABEL) as Pathway[];
 export const HORIZONS = [2030, 2050, 2100] as const;
 export type Horizon = (typeof HORIZONS)[number];
 
@@ -69,7 +72,15 @@ export interface CompareResponse {
   rows: CompareRow[];
 }
 
-export const PATHWAY_LABEL: Record<Pathway, string> = {
-  ssp245: "SSP2-4.5",
-  ssp585: "SSP5-8.5",
-};
+
+/** Properties of one grid cell in the /assessment GeoJSON (land cells only). */
+export interface CellProperties {
+  state: "connected" | "unconnected" | "dry";
+  depth_m: number;
+  elevation_m: number;
+  rslr_m: number;
+  population: number;
+  cvi: number;
+  cvi_class: number;
+  cvi_label: string;
+}

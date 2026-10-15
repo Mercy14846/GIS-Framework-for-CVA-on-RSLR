@@ -13,6 +13,7 @@ https://ers.cr.usgs.gov/password/appgenerate, not the account password). They ar
 
 from __future__ import annotations
 
+import contextlib
 import re
 import time
 from collections.abc import Callable, Iterable
@@ -227,10 +228,8 @@ class M2MClient:
 
     def cleanup(self, label: str) -> None:
         """Remove the download order so it does not linger in the user's M2M queue."""
-        try:
+        with contextlib.suppress(M2MError):
             self.request("download-order-remove", {"label": label})
-        except M2MError:
-            pass
 
 
 def _filename(content_disposition: str | None, url: str) -> str:
@@ -260,19 +259,18 @@ def band_files(options: list[dict], band_suffixes: Iterable[str]) -> list[FileRe
 
 def product_file(options: list[dict], prefer: Iterable[str] = ("GeoTIFF",)) -> list[FileRequest]:
     """One whole-product file per entity, preferring products whose name matches `prefer`."""
+    prefer = tuple(p.lower() for p in prefer)
+
+    def rank(o: dict) -> int:
+        name = (o.get("productName") or "").lower()
+        return next((i for i, p in enumerate(prefer) if p in name), len(prefer))
+
     by_entity: dict[str, list[dict]] = {}
     for o in options:
         if o.get("available"):
             by_entity.setdefault(o["entityId"], []).append(o)
     out = []
     for eid, opts in by_entity.items():
-        ranked = sorted(
-            opts,
-            key=lambda o: next(
-                (i for i, p in enumerate(prefer) if p.lower() in (o.get("productName") or "").lower()),
-                len(tuple(prefer)),
-            ),
-        )
-        best = ranked[0]
+        best = min(opts, key=rank)
         out.append(FileRequest(eid, best["id"], best.get("productName") or eid))
     return out

@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import { BASEMAPS, HORIZONS, WATER_LEVEL_MAX, WATER_LEVEL_STEP, type Basemap, type Horizon, type Pathway, type Tab, type ViewState } from "../types";
+import { BASEMAPS, HORIZONS, PATHWAYS, TABS, WATER_LEVEL_MAX, WATER_LEVEL_STEP, type Horizon, type ViewState } from "../types";
 
 const DEFAULTS: ViewState = { tab: "rslr", year: 2050, pathway: "ssp585", subsidence: true, waterLevel: 0, base: "satellite", lng: 3.47, lat: 6.5, zoom: 10.2 };
-const TABS: Tab[] = ["rslr", "vulnerability", "impact", "scenarios"];
 
-/** The whole map state lives in the URL hash so any view can be shared as a link (as NOAA's viewer does). */
 /** Snap to the 0.25 m steps the API accepts, clamped to 0-3 m. */
 export const snapWaterLevel = (v: number) =>
   Number.isFinite(v) ? Math.min(WATER_LEVEL_MAX, Math.max(0, Math.round(v / WATER_LEVEL_STEP) * WATER_LEVEL_STEP)) : 0;
+
+const oneOf = <T extends string>(v: string | null, allowed: readonly T[], fallback: T): T =>
+  allowed.includes(v as T) ? (v as T) : fallback;
 
 function parse(hash: string): ViewState {
   const p = new URLSearchParams(hash.replace(/^#\/?/, ""));
   const year = Number(p.get("year"));
   const num = (k: string, d: number) => (Number.isFinite(Number(p.get(k))) && p.get(k) !== null ? Number(p.get(k)) : d);
   return {
-    tab: TABS.includes(p.get("tab") as Tab) ? (p.get("tab") as Tab) : DEFAULTS.tab,
+    tab: oneOf(p.get("tab"), TABS, DEFAULTS.tab),
     year: (HORIZONS as readonly number[]).includes(year) ? (year as Horizon) : DEFAULTS.year,
-    pathway: p.get("pathway") === "ssp245" ? ("ssp245" as Pathway) : DEFAULTS.pathway,
+    pathway: oneOf(p.get("pathway"), PATHWAYS, DEFAULTS.pathway),
     subsidence: p.get("sub") !== "0",
     waterLevel: snapWaterLevel(num("wl", DEFAULTS.waterLevel)),
-    base: BASEMAPS.includes(p.get("base") as Basemap) ? (p.get("base") as Basemap) : DEFAULTS.base,
+    base: oneOf(p.get("base"), BASEMAPS, DEFAULTS.base),
     lng: num("lng", DEFAULTS.lng),
     lat: num("lat", DEFAULTS.lat),
     zoom: num("z", DEFAULTS.zoom),
@@ -34,6 +35,7 @@ function serialise(v: ViewState): string {
   return `#/${p}`;
 }
 
+/** The whole map state lives in the URL hash so any view can be shared as a link (as NOAA's viewer does). */
 export function useUrlState(): [ViewState, (patch: Partial<ViewState>) => void] {
   const [state, setState] = useState<ViewState>(() => parse(window.location.hash));
 

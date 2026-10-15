@@ -15,7 +15,7 @@
 
 ```mermaid
 flowchart LR
-  P[DataProvider<br/>demo | raster/PostGIS] --> R[rslr<br/>RSLR = GMSLR + LSR]
+  P[DataProvider<br/>demo | raster GeoTIFF] --> R[rslr<br/>RSLR = GMSLR + LSR]
   R --> I[inundation<br/>connected vs unconnected]
   P --> C[cva<br/>standardise, AHP, CVI, classes]
   R --> C
@@ -23,7 +23,7 @@ flowchart LR
   C --> X
   X --> S[services.assessment]
   S --> A[FastAPI /api/v1]
-  A --> W[React + MapLibre viewer]
+  A --> W[React + Mapbox GL viewer]
   S -.-> J[jobs<br/>precompute scenarios]
 ```
 
@@ -31,8 +31,8 @@ flowchart LR
 
 | Module | Responsibility | Proposal |
 |---|---|---|
-| `providers` | `DataProvider` protocol, `DemoProvider` | 3.4 input |
-| `ingestion` | Dataset catalogue with provenance and status | 3.4, data table |
+| `providers` | `DataProvider` protocol, `DemoProvider`, `RasterProvider` | 3.4 input |
+| `ingestion` | Dataset catalogue; USGS M2M fetch and raster processing | 3.4, data table |
 | `rslr` | GMSLR lookup, RSLR surface, inundation and connectivity | 3.1 |
 | `cva` | Min-max 1–5 standardisation, AHP weights, CVI, natural-break classes | 3.2 |
 | `impact` | Zonal exposure statistics | 3.3 |
@@ -40,7 +40,7 @@ flowchart LR
 | `services` | Orchestrates the workflow, caches results | 3.4 engine |
 | `api` | HTTP surface, GeoJSON encoding | 3.4 output |
 | `jobs` | Scenario precompute (Celery or RQ) | 3.4 background jobs |
-| `database` | PostGIS schema for the raster provider | 3.4 database |
+| `database` | PostGIS schema sketch (not used by the API yet) | 3.4 database |
 
 ## API (`/api/v1`)
 
@@ -50,16 +50,18 @@ flowchart LR
 | `GET /scenarios` | Pathways, horizons, AHP weights and consistency ratio |
 | `GET /layers` | Dataset catalogue with provenance |
 | `GET /sources` | Per-layer source of the running provider: observed, derived or synthetic |
-| `GET /assessment?pathway&year&subsidence` | Summary statistics and GeoJSON cells |
-| `GET /impact?pathway&year&subsidence` | Exposure statistics only (no geometry) |
-| `GET /compare?year` | Summaries across pathways with and without subsidence |
+| `GET /assessment?pathway&year&subsidence&water_level` | Summary statistics and GeoJSON cells |
+| `GET /impact?pathway&year&subsidence&water_level` | Exposure statistics only (no geometry) |
+| `GET /compare?year&water_level` | Summaries across pathways with and without subsidence |
 
 ## Frontend (`frontend/src`)
 
-`App` owns data fetching and state; `components/` are presentational (`MapView`, `TabRail`,
-`HorizonSlider`, `ControlPanel`, `Legend`, `SummaryPanel`, `ComparePanel`); `hooks/useUrlState`
-syncs view state with the URL; `lib/api` is the only network code; `lib/basemaps` maps the four basemap choices to Mapbox styles (or the
-Esri fallback when no token is set).
+`App` owns data fetching and state; `components/` are presentational (`MapView` with its
+`CellInspector` popup, `TabRail`, `HorizonSlider`, `WaterLevelSlider`, `ControlPanel`,
+`DataSources`, `Legend`, `SummaryPanel`, `ComparePanel`); `hooks/useUrlState` syncs view state
+with the URL; `lib/api` is the only network code; `lib/palette` holds the map and legend colours;
+`lib/format` the number formats; `lib/basemaps` maps the four basemap choices to Mapbox styles
+(or the Esri fallback when no token is set).
 
 ## From demo to real data
 
@@ -75,4 +77,5 @@ Esri fallback when no token is set).
 ## Deployment
 
 `docker compose up --build` starts the API, an nginx-served viewer that proxies `/api`, and
-PostGIS and Redis for the raster provider and jobs. CI runs lint, tests and builds on every push.
+PostGIS and Redis, provisioned for a future database store and job queue (the API does not use
+them yet). CI runs lint, tests and builds on every push.

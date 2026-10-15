@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 from coastal_dss.providers.base import DataProvider
 from coastal_dss.services.assessment import Assessment, class_label
 
@@ -63,6 +61,3 @@ def cells_geojson(provider: DataProvider, a: Assessment) -> dict:
 def bbox(provider: DataProvider) -> list[float]:
     g = provider.grid
     return [g.lon0, g.lat0, g.lon1, g.lat1]
-
-
-__all__ = ["bbox", "cells_geojson", "np"]

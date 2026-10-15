@@ -78,17 +78,16 @@ class RasterProvider:
 
     def indicator_layers(self) -> dict[str, tuple[np.ndarray, bool]]:
         demo = self._demo.indicator_layers()
-        elev = self.elevation_m()
 
-        def pick(name: str, fallback: str) -> np.ndarray:
+        def pick(name: str) -> np.ndarray:
             v = self._layers[name]
-            return v if v is not None else demo[fallback][0]
+            return v if v is not None else demo[name][0]
 
         return {
-            "elevation": (elev, True),
-            "slope": (pick("slope", "slope"), True),
-            "shoreline_change": (pick("shoreline_change", "shoreline_change"), False),
-            "geomorphology": (pick("geomorphology", "geomorphology"), False),
+            "elevation": (self.elevation_m(), True),
+            "slope": (pick("slope"), True),
+            "shoreline_change": (pick("shoreline_change"), False),
+            "geomorphology": (pick("geomorphology"), False),
             "population_density": (self.population(), False),
             "infrastructure_proximity": (self.built_up_fraction(), False),
         }

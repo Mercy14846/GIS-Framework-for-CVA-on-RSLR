@@ -222,7 +222,7 @@ def mock_usgs() -> httpx.MockTransport:
 
 
 @pytest.fixture
-def ingested(tmp_path, monkeypatch):
+def ingested(tmp_path):
     from coastal_dss.ingestion import usgs_fetch
     from coastal_dss.ingestion.process import process
     from coastal_dss.providers.base import Grid

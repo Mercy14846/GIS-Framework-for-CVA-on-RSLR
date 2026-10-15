@@ -100,12 +100,11 @@ class DemoProvider:
         d = np.clip(self._dist, 0, None)
         gy, gx = np.gradient(np.where(self.sea_mask(), 0, self._elev))
         slope = np.hypot(gx, gy)
-        shoreline = self._shoreline
         geomorph = np.where(d < 0.06, 5.0, np.where(d < 0.2, 3.0, 1.0))
         return {
             "elevation": (self._elev, True),
             "slope": (slope, True),
-            "shoreline_change": (shoreline, False),
+            "shoreline_change": (self._shoreline, False),
             "geomorphology": (geomorph, False),
             "population_density": (self._pop, False),
             "infrastructure_proximity": (self.built_up_fraction(), False),

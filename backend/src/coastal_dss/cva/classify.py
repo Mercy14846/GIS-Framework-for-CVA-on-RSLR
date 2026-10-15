@@ -21,10 +21,10 @@ def jenks_breaks(values: np.ndarray, k: int = 5, max_samples: int = 400) -> np.n
     mat2 = np.full((n + 1, k + 1), np.inf)
     mat1[1, 1:] = 1
     mat2[1, 1:] = 0
-    for l in range(2, n + 1):
+    for end in range(2, n + 1):
         s1 = s2 = w = 0.0
-        for m in range(1, l + 1):
-            i3 = l - m + 1
+        for m in range(1, end + 1):
+            i3 = end - m + 1
             val = v[i3 - 1]
             s2 += val * val
             s1 += val
@@ -33,11 +33,11 @@ def jenks_breaks(values: np.ndarray, k: int = 5, max_samples: int = 400) -> np.n
             i4 = i3 - 1
             if i4 != 0:
                 for j in range(2, k + 1):
-                    if mat2[l, j] >= var + mat2[i4, j - 1]:
-                        mat1[l, j] = i3
-                        mat2[l, j] = var + mat2[i4, j - 1]
-        mat1[l, 1] = 1
-        mat2[l, 1] = var
+                    if mat2[end, j] >= var + mat2[i4, j - 1]:
+                        mat1[end, j] = i3
+                        mat2[end, j] = var + mat2[i4, j - 1]
+        mat1[end, 1] = 1
+        mat2[end, 1] = var
     breaks = np.zeros(k + 1)
     breaks[k] = v[-1]
     breaks[0] = v[0]

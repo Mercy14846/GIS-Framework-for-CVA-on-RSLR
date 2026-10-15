@@ -1,4 +1,5 @@
-import { CVI_COLORS, CVI_LABELS } from "../lib/palette";
+import { fmt } from "../lib/format";
+import { CVI_COLORS, CVI_LABELS, DEPTH_RAMP, POP_RAMP, UNCONNECTED_COLOR, rampGradient } from "../lib/palette";
 import type { Tab } from "../types";
 
 export default function Legend({ tab }: { tab: Tab }) {
@@ -14,15 +15,15 @@ export default function Legend({ tab }: { tab: Tab }) {
       ) : tab === "impact" ? (
         <>
           <h4>Population in flooded cells</h4>
-          <div className="ramp" style={{ background: "linear-gradient(90deg,#e7d4f2,#a85fc9,#5b1a82)" }} />
-          <div className="ramp-lbl"><span>0</span><span>6,000+</span></div>
+          <div className="ramp" style={{ background: rampGradient(POP_RAMP) }} />
+          <div className="ramp-lbl"><span>0</span><span>{fmt(POP_RAMP[POP_RAMP.length - 1][0])}+</span></div>
         </>
       ) : (
         <>
           <h4>Inundation depth</h4>
-          <div className="ramp" style={{ background: "linear-gradient(90deg,#a8d8f5,#2b83ba,#08306b)" }} />
-          <div className="ramp-lbl"><span>0 m</span><span>3 m+</span></div>
-          <div className="row"><i style={{ background: "#5cb85c" }} />Low-lying, not connected to sea</div>
+          <div className="ramp" style={{ background: rampGradient(DEPTH_RAMP) }} />
+          <div className="ramp-lbl"><span>0 m</span><span>{DEPTH_RAMP[DEPTH_RAMP.length - 1][0]} m+</span></div>
+          <div className="row"><i style={{ background: UNCONNECTED_COLOR }} />Low-lying, not connected to sea</div>
           <p className="note">Water surface = today's high tide (MHHW) + projected RSLR + water level.</p>
         </>
       )}

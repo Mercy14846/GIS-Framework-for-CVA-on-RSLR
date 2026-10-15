@@ -1,3 +1,4 @@
+import { fmtWater } from "../lib/format";
 import { WATER_LEVEL_MAX, WATER_LEVEL_STEP } from "../types";
 
 const TICKS = Array.from({ length: WATER_LEVEL_MAX / 0.5 + 1 }, (_, i) => WATER_LEVEL_MAX - i * 0.5);
@@ -10,7 +11,7 @@ export default function WaterLevelSlider({ value, onChange }: { value: number; o
   return (
     <div className="slider wl" aria-label="Water level">
       <div className="slider-title">WATER LEVEL</div>
-      <div className="wl-value">+{value.toFixed(2)} m</div>
+      <div className="wl-value">{fmtWater(value)}</div>
       <div className="wl-body">
         <input
           type="range"

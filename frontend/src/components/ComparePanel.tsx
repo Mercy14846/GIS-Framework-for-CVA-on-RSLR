@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchCompare } from "../lib/api";
+import { fmt, fmtWater } from "../lib/format";
 import { PATHWAY_LABEL, type CompareResponse, type ViewState } from "../types";
 
 export default function ComparePanel({ view }: { view: ViewState }) {
@@ -12,7 +13,7 @@ export default function ComparePanel({ view }: { view: ViewState }) {
   if (!data) return null;
   return (
     <aside className="panel compare" aria-label="Scenario comparison">
-      <h4>Scenario comparison, {data.year} · water +{data.water_level.toFixed(2)} m</h4>
+      <h4>Scenario comparison, {data.year} · water {fmtWater(data.water_level)}</h4>
       <table>
         <thead><tr><th>Pathway</th><th>Subsidence</th><th>Flooded km²</th><th>Pop. exposed</th></tr></thead>
         <tbody>
@@ -21,7 +22,7 @@ export default function ComparePanel({ view }: { view: ViewState }) {
               <td>{PATHWAY_LABEL[r.pathway]}</td>
               <td>{r.subsidence ? "Included" : "Excluded"}</td>
               <td>{r.flooded_area_km2.toFixed(0)}</td>
-              <td>{r.population_exposed.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+              <td>{fmt(r.population_exposed)}</td>
             </tr>
           ))}
         </tbody>

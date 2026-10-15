@@ -1,4 +1,4 @@
-"""Shared constants. Conventions are documented in docs/conventions.md."""
+"""Shared constants: scenario axes, datums and the study area."""
 
 # GMSLR projections in IPCC AR6 are relative to the 1995-2014 mean (centred on 2005).
 # Subsidence is therefore accumulated from the same baseline year.

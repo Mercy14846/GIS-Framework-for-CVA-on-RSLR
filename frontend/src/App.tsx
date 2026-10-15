@@ -9,6 +9,7 @@ import TabRail from "./components/TabRail";
 import WaterLevelSlider from "./components/WaterLevelSlider";
 import { snapWaterLevel, useUrlState } from "./hooks/useUrlState";
 import { fetchAssessment } from "./lib/api";
+import { fmtWater } from "./lib/format";
 import { PATHWAY_LABEL, type AssessmentResponse } from "./types";
 
 export default function App() {
@@ -32,7 +33,8 @@ export default function App() {
     return () => ac.abort();
   }, [view.pathway, view.year, view.subsidence, view.waterLevel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const synthetic = (data?.sources ?? []).filter((s) => s.status === "synthetic");
+  const sources = data?.sources ?? [];
+  const synthetic = sources.filter((s) => s.status === "synthetic");
 
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); } catch { /* clipboard unavailable */ }
@@ -44,7 +46,7 @@ export default function App() {
     <div className="app">
       <header className="top">
         <h1>Lagos Coastal Vulnerability Viewer</h1>
-        <span className="scn">{PATHWAY_LABEL[view.pathway]} · {view.year} · {view.subsidence ? "with subsidence" : "global only"} · water +{view.waterLevel.toFixed(2)} m</span>
+        <span className="scn">{PATHWAY_LABEL[view.pathway]} · {view.year} · {view.subsidence ? "with subsidence" : "global only"} · water {fmtWater(view.waterLevel)}</span>
         <span className="tag">Screening-level tool</span>
       </header>
       {data?.data_mode === "demo" && (
@@ -64,6 +66,7 @@ export default function App() {
           center={initial.current}
           zoom={initialZoom.current}
           opacity={opacity}
+          sources={sources}
           onMove={(lng, lat, zoom) => update({ lng, lat, zoom })}
         />
         <div className="slider-strip">
@@ -78,7 +81,7 @@ export default function App() {
             {sheetOpen ? "Hide legend & controls" : "Legend & controls"}
           </button>
           <div className="sheet-body" id="sheet-body">
-            <ControlPanel view={view} opacity={opacity} onChange={update} onOpacity={setOpacity} onShare={share} shared={shared} sources={data?.sources ?? []} />
+            <ControlPanel view={view} opacity={opacity} onChange={update} onOpacity={setOpacity} onShare={share} shared={shared} sources={sources} />
             {view.tab === "scenarios" ? <ComparePanel view={view} /> : <Legend tab={view.tab} />}
           </div>
         </div>

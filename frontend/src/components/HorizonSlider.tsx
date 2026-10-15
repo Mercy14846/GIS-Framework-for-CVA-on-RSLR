@@ -10,7 +10,7 @@ export default function HorizonSlider({ year, onChange }: { year: Horizon; onCha
         {ordered.map((y) => (
           <button key={y} role="radio" aria-checked={year === y} className={`stop ${year === y ? "on" : ""}`} onClick={() => onChange(y)}>
             <span className="dot" />
-            <span className="lbl">{y}</span>
+            <span>{y}</span>
           </button>
         ))}
       </div>

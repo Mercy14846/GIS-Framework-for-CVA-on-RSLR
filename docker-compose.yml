@@ -14,7 +14,7 @@ services:
     ports: ["8080:80"]
     depends_on: [api]
 
-  # Used once the PostGIS-backed provider is enabled (DSS_DATA_MODE=raster).
+  # Provisioned for a future PostGIS store and job queue; the API does not use db or redis yet.
   db:
     image: postgis/postgis:16-3.4
     environment: { POSTGRES_USER: dss, POSTGRES_PASSWORD: dss, POSTGRES_DB: dss }

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from coastal_dss.api.geojson import bbox, cells_geojson
 from coastal_dss.providers import get_provider
@@ -7,32 +9,47 @@ from coastal_dss.services.assessment import assess
 
 router = APIRouter()
 
-WATER_LEVEL = Query(0.0, description="Water level above Lagos high tide (MHHW), metres")
+Year = Annotated[int, Query()]
+WaterLevel = Annotated[
+    float, Query(description="Water level above Lagos high tide (MHHW), metres")
+]
 
 
-def _scenario(pathway: str, year: int, subsidence: bool, water_level: float = 0.0) -> Scenario:
+def _validated(sc: Scenario) -> Scenario:
     try:
-        return Scenario(pathway, year, subsidence, water_level).validate()
+        return sc.validate()
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-def _echo(pathway: str, year: int, subsidence: bool, water_level: float) -> dict:
-    return {"pathway": pathway, "year": year, "subsidence": subsidence, "water_level": water_level}
+def scenario_params(
+    pathway: Annotated[str, Query()] = "ssp585",
+    year: Year = 2050,
+    subsidence: Annotated[bool, Query()] = True,
+    water_level: WaterLevel = 0.0,
+) -> Scenario:
+    return _validated(Scenario(pathway, year, subsidence, water_level))
+
+
+ScenarioDep = Annotated[Scenario, Depends(scenario_params)]
+
+
+def _echo(sc: Scenario) -> dict:
+    return {
+        "pathway": sc.pathway,
+        "year": sc.year,
+        "subsidence": sc.include_subsidence,
+        "water_level": sc.water_level_m,
+    }
 
 
 @router.get("/assessment")
-def get_assessment(
-    pathway: str = Query("ssp585"),
-    year: int = Query(2050),
-    subsidence: bool = Query(True),
-    water_level: float = WATER_LEVEL,
-) -> dict:
+def get_assessment(sc: ScenarioDep) -> dict:
     """Cells (state, depth, CVI class) plus the exposure summary for one scenario."""
-    a = assess(_scenario(pathway, year, subsidence, water_level))
+    a = assess(sc)
     p = get_provider()
     return {
-        "scenario": _echo(pathway, year, subsidence, water_level),
+        "scenario": _echo(sc),
         "data_mode": p.mode,
         "sources": p.sources(),
         "bbox": bbox(p),
@@ -42,28 +59,17 @@ def get_assessment(
 
 
 @router.get("/impact")
-def get_impact(
-    pathway: str = Query("ssp585"),
-    year: int = Query(2050),
-    subsidence: bool = Query(True),
-    water_level: float = WATER_LEVEL,
-) -> dict:
-    return {
-        "scenario": _echo(pathway, year, subsidence, water_level),
-        "summary": assess(_scenario(pathway, year, subsidence, water_level)).summary,
-    }
+def get_impact(sc: ScenarioDep) -> dict:
+    """Exposure statistics only (no geometry)."""
+    return {"scenario": _echo(sc), "summary": assess(sc).summary}
 
 
 @router.get("/compare")
-def compare(
-    year: int = Query(2050),
-    subsidence: bool = Query(True),
-    water_level: float = WATER_LEVEL,
-) -> dict:
+def compare(year: Year = 2050, water_level: WaterLevel = 0.0) -> dict:
     """Both pathways, with and without subsidence, for the Scenarios tab."""
     rows = []
     for pw in ("ssp245", "ssp585"):
         for sub in (True, False):
-            s = assess(_scenario(pw, year, sub, water_level)).summary
+            s = assess(_validated(Scenario(pw, year, sub, water_level))).summary
             rows.append({"pathway": pw, "subsidence": sub, **s})
     return {"year": year, "water_level": water_level, "rows": rows}

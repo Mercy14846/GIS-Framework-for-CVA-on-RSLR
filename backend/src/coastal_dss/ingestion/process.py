@@ -32,7 +32,7 @@ from scipy import ndimage
 
 from coastal_dss.providers.base import Grid
 
-try:  # rasterio is in the optional `geo` extra; core.geo must load it first (PROJ data)
+try:  # rasterio is optional (`ingest` extra); core.geo must load it first (PROJ data)
     from coastal_dss.core.geo import rasterio
 
     from_bounds = rasterio.transform.from_bounds
@@ -44,6 +44,12 @@ LANDSAT_QA_REJECT = 0b11111  # fill, dilated cloud, cirrus, cloud, cloud shadow
 SR_SCALE, SR_OFFSET = 0.0000275, -0.2
 COASTAL_ZONE_M = 3000.0
 BEACH_ZONE_M = 500.0
+
+
+def grid_transform(grid: Grid, width: int | None = None, height: int | None = None):
+    """Affine transform of `grid`'s bounds at width x height pixels (default: one per cell)."""
+    return from_bounds(grid.lon0, grid.lat0, grid.lon1, grid.lat1,
+                       width or grid.nx, height or grid.ny)
 
 
 @dataclass(frozen=True)
@@ -58,8 +64,7 @@ class Fine:
 
     @property
     def transform(self):
-        g = self.grid
-        return from_bounds(g.lon0, g.lat0, g.lon1, g.lat1, self.shape[1], self.shape[0])
+        return grid_transform(self.grid, self.shape[1], self.shape[0])
 
     @property
     def pixel_m(self) -> tuple[float, float]:
@@ -75,7 +80,7 @@ def fine_for(grid: Grid, arcsec: float = 1.0) -> Fine:
 
 def _require_rasterio() -> None:
     if rasterio is None:
-        raise RuntimeError("raster processing needs the geo extra: pip install -e 'backend[geo]'")
+        raise RuntimeError("raster processing needs rasterio: pip install -e 'backend[ingest]'")
 
 
 def warp(paths: list[Path], fine: Fine, resampling, nodata: float | None = None) -> np.ndarray:
@@ -276,7 +281,7 @@ def process(raw_dir: Path, out_dir: Path, grid: Grid, log=print) -> dict:
                           "method": f"resampled to the analysis grid ({how.name})"}
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    tf = from_bounds(grid.lon0, grid.lat0, grid.lon1, grid.lat1, grid.nx, grid.ny)
+    tf = grid_transform(grid)
     for name, arr in layers.items():
         with rasterio.open(out_dir / f"{name}.tif", "w", driver="GTiff", height=grid.ny,
                            width=grid.nx, count=1, dtype="float32", crs="EPSG:4326",
@@ -300,7 +305,7 @@ def _to_grid(path: Path, grid: Grid, resampling) -> np.ndarray:
     with rasterio.open(path) as src:
         reproject(
             source=rasterio.band(src, 1), destination=out, src_nodata=src.nodata,
-            dst_transform=from_bounds(grid.lon0, grid.lat0, grid.lon1, grid.lat1, grid.nx, grid.ny),
+            dst_transform=grid_transform(grid),
             dst_crs="EPSG:4326", dst_nodata=np.nan, resampling=resampling,
         )
     return out

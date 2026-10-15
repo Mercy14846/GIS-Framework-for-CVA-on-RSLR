@@ -1,8 +1,8 @@
 """Data provider contract.
 
 The science and API layers depend only on this protocol. `DemoProvider` serves synthetic
-placeholder data; a `RasterProvider` (GeoTIFF / PostGIS) will implement the same interface
-when real layers are ingested, with no change to services, API or frontend.
+placeholder data; `RasterProvider` serves the GeoTIFF layers built by `coastal_dss.ingestion`
+and falls back to the demo layer for anything not ingested yet.
 """
 
 from __future__ import annotations
