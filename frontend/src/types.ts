@@ -1,4 +1,7 @@
 export type Tab = "rslr" | "vulnerability" | "impact" | "scenarios";
+export type Basemap = "satellite" | "streets" | "dark" | "light";
+export const BASEMAPS: Basemap[] = ["satellite", "streets", "dark", "light"];
+export const BASEMAP_LABEL: Record<Basemap, string> = { satellite: "Satellite", streets: "Streets", dark: "Dark", light: "Light" };
 export type Pathway = "ssp245" | "ssp585";
 export const HORIZONS = [2030, 2050, 2100] as const;
 export type Horizon = (typeof HORIZONS)[number];
@@ -8,6 +11,7 @@ export interface ViewState {
   year: Horizon;
   pathway: Pathway;
   subsidence: boolean;
+  base: Basemap;
   lng: number;
   lat: number;
   zoom: number;

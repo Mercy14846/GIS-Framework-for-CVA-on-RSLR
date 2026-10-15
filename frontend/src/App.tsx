@@ -50,6 +50,7 @@ export default function App() {
       <main className="stage">
         <MapView
           tab={view.tab}
+          base={view.base}
           cells={data?.cells ?? null}
           center={initial.current}
           zoom={initialZoom.current}

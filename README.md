@@ -25,6 +25,18 @@ make dev-web      # http://localhost:5173
 make test
 ```
 
+## Mapbox basemap
+
+The viewer uses Mapbox GL JS with four basemaps (Satellite, Streets, Dark, Light). Create a
+free public token at <https://account.mapbox.com>, restrict it to your site URLs, then:
+
+```bash
+echo "VITE_MAPBOX_TOKEN=pk.your_token" > frontend/.env.local   # local dev
+VITE_MAPBOX_TOKEN=pk.your_token docker compose up --build      # Docker
+```
+
+Without a token the viewer falls back to an Esri satellite basemap and shows a notice.
+
 ## What it does
 
 | Viewer tab | Proposal objective | What you see |

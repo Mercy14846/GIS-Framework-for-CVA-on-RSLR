@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { HORIZONS, type Horizon, type Pathway, type Tab, type ViewState } from "../types";
+import { BASEMAPS, HORIZONS, type Basemap, type Horizon, type Pathway, type Tab, type ViewState } from "../types";
 
-const DEFAULTS: ViewState = { tab: "rslr", year: 2050, pathway: "ssp585", subsidence: true, lng: 3.47, lat: 6.5, zoom: 10.2 };
+const DEFAULTS: ViewState = { tab: "rslr", year: 2050, pathway: "ssp585", subsidence: true, base: "satellite", lng: 3.47, lat: 6.5, zoom: 10.2 };
 const TABS: Tab[] = ["rslr", "vulnerability", "impact", "scenarios"];
 
 /** The whole map state lives in the URL hash so any view can be shared as a link (as NOAA's viewer does). */
@@ -14,6 +14,7 @@ function parse(hash: string): ViewState {
     year: (HORIZONS as readonly number[]).includes(year) ? (year as Horizon) : DEFAULTS.year,
     pathway: p.get("pathway") === "ssp245" ? ("ssp245" as Pathway) : DEFAULTS.pathway,
     subsidence: p.get("sub") !== "0",
+    base: BASEMAPS.includes(p.get("base") as Basemap) ? (p.get("base") as Basemap) : DEFAULTS.base,
     lng: num("lng", DEFAULTS.lng),
     lat: num("lat", DEFAULTS.lat),
     zoom: num("z", DEFAULTS.zoom),
@@ -22,7 +23,7 @@ function parse(hash: string): ViewState {
 
 function serialise(v: ViewState): string {
   const p = new URLSearchParams({
-    tab: v.tab, year: String(v.year), pathway: v.pathway, sub: v.subsidence ? "1" : "0",
+    tab: v.tab, year: String(v.year), pathway: v.pathway, sub: v.subsidence ? "1" : "0", base: v.base,
     lng: v.lng.toFixed(4), lat: v.lat.toFixed(4), z: v.zoom.toFixed(2),
   });
   return `#/${p}`;

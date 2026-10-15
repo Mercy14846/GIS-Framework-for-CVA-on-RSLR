@@ -1,4 +1,4 @@
-import { PATHWAY_LABEL, type Pathway, type ViewState } from "../types";
+import { BASEMAPS, BASEMAP_LABEL, PATHWAY_LABEL, type Pathway, type ViewState } from "../types";
 
 interface Props {
   view: ViewState;
@@ -29,6 +29,16 @@ export default function ControlPanel({ view, opacity, onChange, onOpacity, onSha
           <small>{view.subsidence ? "RSLR = sea-level rise + subsidence" : "Global sea-level rise only"}</small>
         </span>
       </label>
+      <div className="field">
+        <label>Basemap</label>
+        <div className="seg four" role="radiogroup" aria-label="Basemap">
+          {BASEMAPS.map((b) => (
+            <button key={b} role="radio" aria-checked={view.base === b} className={view.base === b ? "on" : ""} onClick={() => onChange({ base: b })}>
+              {BASEMAP_LABEL[b]}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="field">
         <label htmlFor="op">Layer opacity</label>
         <input id="op" type="range" min={0.2} max={1} step={0.05} value={opacity} onChange={(e) => onOpacity(Number(e.target.value))} />

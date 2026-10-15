@@ -57,7 +57,8 @@ flowchart LR
 
 `App` owns data fetching and state; `components/` are presentational (`MapView`, `TabRail`,
 `HorizonSlider`, `ControlPanel`, `Legend`, `SummaryPanel`, `ComparePanel`); `hooks/useUrlState`
-syncs view state with the URL; `lib/api` is the only network code.
+syncs view state with the URL; `lib/api` is the only network code; `lib/basemaps` maps the four basemap choices to Mapbox styles (or the
+Esri fallback when no token is set).
 
 ## From demo to real data
 

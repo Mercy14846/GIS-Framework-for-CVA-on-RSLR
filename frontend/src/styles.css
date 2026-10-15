@@ -19,7 +19,7 @@ body { color: var(--ink); background: var(--navy); }
 .rail-btn.active { color: #fff; background: var(--blue); }
 .rail-btn:focus-visible, .stop:focus-visible, .seg button:focus-visible, .btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 .stage { position: relative; min-height: 0; }
-.map { position: absolute; inset: 0; }
+.map, .map.mapboxgl-map { position: absolute; inset: 0; }
 .panel { position: absolute; background: var(--panel); border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.28); padding: 12px 14px; font-size: 13px; }
 .controls { top: 12px; right: 12px; width: 250px; display: grid; gap: 12px; }
 .field label, .field > span { display: block; font-weight: 700; margin-bottom: 5px; }
@@ -61,3 +61,7 @@ body { color: var(--ink); background: var(--navy); }
   .controls { width: 200px; } .compare { width: 300px; } .legend { width: 190px; }
   .summary { left: 12px; bottom: 8px; } .stat { min-width: 120px; }
 }
+
+.seg.four { grid-template-columns: repeat(4, 1fr); }
+.seg.four button { font-size: 12px; padding: 7px 0; }
+.mapnote { position: absolute; left: 50%; transform: translateX(-50%); top: 12px; z-index: 5; background: #fff8e1; color: #6b4e00; border: 1px solid #f0d98c; border-radius: 8px; padding: 6px 12px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
