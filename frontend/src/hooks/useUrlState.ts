@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { BASEMAPS, HORIZONS, type Basemap, type Horizon, type Pathway, type Tab, type ViewState } from "../types";
+import { BASEMAPS, HORIZONS, WATER_LEVEL_MAX, WATER_LEVEL_STEP, type Basemap, type Horizon, type Pathway, type Tab, type ViewState } from "../types";
 
-const DEFAULTS: ViewState = { tab: "rslr", year: 2050, pathway: "ssp585", subsidence: true, base: "satellite", lng: 3.47, lat: 6.5, zoom: 10.2 };
+const DEFAULTS: ViewState = { tab: "rslr", year: 2050, pathway: "ssp585", subsidence: true, waterLevel: 0, base: "satellite", lng: 3.47, lat: 6.5, zoom: 10.2 };
 const TABS: Tab[] = ["rslr", "vulnerability", "impact", "scenarios"];
 
 /** The whole map state lives in the URL hash so any view can be shared as a link (as NOAA's viewer does). */
+/** Snap to the 0.25 m steps the API accepts, clamped to 0-3 m. */
+export const snapWaterLevel = (v: number) =>
+  Number.isFinite(v) ? Math.min(WATER_LEVEL_MAX, Math.max(0, Math.round(v / WATER_LEVEL_STEP) * WATER_LEVEL_STEP)) : 0;
+
 function parse(hash: string): ViewState {
   const p = new URLSearchParams(hash.replace(/^#\/?/, ""));
   const year = Number(p.get("year"));
@@ -14,6 +18,7 @@ function parse(hash: string): ViewState {
     year: (HORIZONS as readonly number[]).includes(year) ? (year as Horizon) : DEFAULTS.year,
     pathway: p.get("pathway") === "ssp245" ? ("ssp245" as Pathway) : DEFAULTS.pathway,
     subsidence: p.get("sub") !== "0",
+    waterLevel: snapWaterLevel(num("wl", DEFAULTS.waterLevel)),
     base: BASEMAPS.includes(p.get("base") as Basemap) ? (p.get("base") as Basemap) : DEFAULTS.base,
     lng: num("lng", DEFAULTS.lng),
     lat: num("lat", DEFAULTS.lat),
@@ -23,7 +28,7 @@ function parse(hash: string): ViewState {
 
 function serialise(v: ViewState): string {
   const p = new URLSearchParams({
-    tab: v.tab, year: String(v.year), pathway: v.pathway, sub: v.subsidence ? "1" : "0", base: v.base,
+    tab: v.tab, year: String(v.year), pathway: v.pathway, sub: v.subsidence ? "1" : "0", wl: v.waterLevel.toFixed(2), base: v.base,
     lng: v.lng.toFixed(4), lat: v.lat.toFixed(4), z: v.zoom.toFixed(2),
   });
   return `#/${p}`;

@@ -23,6 +23,7 @@ export default function Legend({ tab }: { tab: Tab }) {
           <div className="ramp" style={{ background: "linear-gradient(90deg,#a8d8f5,#2b83ba,#08306b)" }} />
           <div className="ramp-lbl"><span>0 m</span><span>3 m+</span></div>
           <div className="row"><i style={{ background: "#5cb85c" }} />Low-lying, not connected to sea</div>
+          <p className="note">Water surface = today's high tide (MHHW) + projected RSLR + water level.</p>
         </>
       )}
     </aside>

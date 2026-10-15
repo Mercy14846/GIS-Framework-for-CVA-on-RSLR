@@ -6,7 +6,8 @@ import Legend from "./components/Legend";
 import MapView from "./components/MapView";
 import SummaryPanel from "./components/SummaryPanel";
 import TabRail from "./components/TabRail";
-import { useUrlState } from "./hooks/useUrlState";
+import WaterLevelSlider from "./components/WaterLevelSlider";
+import { snapWaterLevel, useUrlState } from "./hooks/useUrlState";
 import { fetchAssessment } from "./lib/api";
 import { PATHWAY_LABEL, type AssessmentResponse } from "./types";
 
@@ -28,7 +29,7 @@ export default function App() {
       .catch((e: Error) => { if (e.name !== "AbortError") setError("Could not reach the analysis API. Is the backend running?"); })
       .finally(() => setLoading(false));
     return () => ac.abort();
-  }, [view.pathway, view.year, view.subsidence]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [view.pathway, view.year, view.subsidence, view.waterLevel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); } catch { /* clipboard unavailable */ }
@@ -40,7 +41,7 @@ export default function App() {
     <div className="app">
       <header className="top">
         <h1>Lagos Coastal Vulnerability Viewer</h1>
-        <span className="scn">{PATHWAY_LABEL[view.pathway]} · {view.year} · {view.subsidence ? "with subsidence" : "global only"}</span>
+        <span className="scn">{PATHWAY_LABEL[view.pathway]} · {view.year} · {view.subsidence ? "with subsidence" : "global only"} · water +{view.waterLevel.toFixed(2)} m</span>
         <span className="tag">Screening-level tool</span>
       </header>
       {data?.data_mode === "demo" && (
@@ -58,6 +59,9 @@ export default function App() {
           onMove={(lng, lat, zoom) => update({ lng, lat, zoom })}
         />
         <HorizonSlider year={view.year} onChange={(year) => update({ year })} />
+        {view.tab !== "vulnerability" && (
+          <WaterLevelSlider value={view.waterLevel} onChange={(m) => update({ waterLevel: snapWaterLevel(m) })} />
+        )}
         <ControlPanel view={view} opacity={opacity} onChange={update} onOpacity={setOpacity} onShare={share} shared={shared} />
         {view.tab === "scenarios" ? <ComparePanel view={view} /> : <Legend tab={view.tab} />}
         {error && <div className="error" role="alert">{error}</div>}

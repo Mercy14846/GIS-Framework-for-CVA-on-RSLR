@@ -8,11 +8,11 @@ export default function ComparePanel({ view }: { view: ViewState }) {
     const ac = new AbortController();
     fetchCompare(view, ac.signal).then(setData).catch(() => undefined);
     return () => ac.abort();
-  }, [view.year]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [view.year, view.waterLevel]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!data) return null;
   return (
     <aside className="panel compare" aria-label="Scenario comparison">
-      <h4>Scenario comparison, {data.year}</h4>
+      <h4>Scenario comparison, {data.year} · water +{data.water_level.toFixed(2)} m</h4>
       <table>
         <thead><tr><th>Pathway</th><th>Subsidence</th><th>Flooded km²</th><th>Pop. exposed</th></tr></thead>
         <tbody>

@@ -11,3 +11,12 @@ PATHWAYS: dict[str, str] = {
 }
 
 CVI_CLASSES: tuple[str, ...] = ("very low", "low", "moderate", "high", "very high")
+
+# Water level action (as in NOAA's SLR viewer, but in metres): an extra, uniform water height
+# above today's high tide (MHHW) for tides and storm surge, added on top of the projected RSLR.
+WATER_LEVEL_MAX_M: float = 3.0
+WATER_LEVEL_STEP_M: float = 0.25
+
+# PLACEHOLDER: height of Lagos MHHW above the elevation datum (MSL), from the ~1 m
+# semi-diurnal tidal range. Replace with the Lagos tide-gauge datum before using results.
+LAGOS_MHHW_M: float = 0.5

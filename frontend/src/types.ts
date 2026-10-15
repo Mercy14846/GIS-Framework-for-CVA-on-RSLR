@@ -6,11 +6,16 @@ export type Pathway = "ssp245" | "ssp585";
 export const HORIZONS = [2030, 2050, 2100] as const;
 export type Horizon = (typeof HORIZONS)[number];
 
+/** Water level above Lagos high tide (MHHW) in metres: NOAA's water-level action, in metric. */
+export const WATER_LEVEL_MAX = 3;
+export const WATER_LEVEL_STEP = 0.25;
+
 export interface ViewState {
   tab: Tab;
   year: Horizon;
   pathway: Pathway;
   subsidence: boolean;
+  waterLevel: number;
   base: Basemap;
   lng: number;
   lat: number;
@@ -27,10 +32,11 @@ export interface Summary {
   mean_rslr_m: number;
   max_rslr_m: number;
   high_or_very_high_area_km2: number;
+  water_level_m: number;
 }
 
 export interface AssessmentResponse {
-  scenario: { pathway: Pathway; year: number; subsidence: boolean };
+  scenario: { pathway: Pathway; year: number; subsidence: boolean; water_level: number };
   data_mode: string;
   bbox: [number, number, number, number];
   summary: Summary;
@@ -43,6 +49,7 @@ export interface CompareRow extends Summary {
 }
 export interface CompareResponse {
   year: number;
+  water_level: number;
   rows: CompareRow[];
 }
 

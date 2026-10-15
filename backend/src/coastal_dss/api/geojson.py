@@ -29,7 +29,7 @@ def cells_geojson(provider: DataProvider, a: Assessment) -> dict:
                 if a.unconnected[i, j]
                 else "dry"
             )
-            depth = max(0.0, float(a.rslr[i, j] - elev[i, j])) if state != "dry" else 0.0
+            depth = max(0.0, float(a.surface[i, j] - elev[i, j])) if state != "dry" else 0.0
             feats.append(
                 {
                     "type": "Feature",

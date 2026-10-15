@@ -11,7 +11,13 @@ from itertools import product
 
 import numpy as np
 
-from coastal_dss.core.constants import BASELINE_YEAR, CVI_CLASSES, HORIZONS, PATHWAYS
+from coastal_dss.core.constants import (
+    BASELINE_YEAR,
+    CVI_CLASSES,
+    HORIZONS,
+    LAGOS_MHHW_M,
+    PATHWAYS,
+)
 from coastal_dss.cva.ahp import ahp_weights
 from coastal_dss.cva.classify import classify, jenks_breaks
 from coastal_dss.cva.cvi import cvi
@@ -47,6 +53,7 @@ def default_weights() -> tuple[dict[str, float], float]:
 class Assessment:
     scenario: Scenario
     rslr: np.ndarray
+    surface: np.ndarray  # water surface above MSL: high tide + RSLR + water level
     connected: np.ndarray
     unconnected: np.ndarray
     cvi: np.ndarray
@@ -88,7 +95,9 @@ def assess(sc: Scenario) -> Assessment:
     sc.validate()
     p = get_provider()
     level, v, sea, elev = _raw_cvi(sc)
-    connected, unconnected = inundation(elev, level, sea)
+    # Flooding uses the full water surface; vulnerability (CVI) stays on long-term RSLR only.
+    surface = level + LAGOS_MHHW_M + sc.water_level_m
+    connected, unconnected = inundation(elev, surface, sea)
     classes = classify(v, reference_breaks())
     summary = exposure_summary(
         connected, p.population(), p.grid.cell_area_km2, p.built_up_fraction()
@@ -96,10 +105,11 @@ def assess(sc: Scenario) -> Assessment:
     summary["unconnected_area_km2"] = float(unconnected.sum() * p.grid.cell_area_km2)
     summary["mean_rslr_m"] = float(level[~sea].mean())
     summary["max_rslr_m"] = float(level[~sea].max())
+    summary["water_level_m"] = sc.water_level_m
     summary["high_or_very_high_area_km2"] = float(
         ((classes >= 4) & ~sea).sum() * p.grid.cell_area_km2
     )
-    return Assessment(sc, level, connected, unconnected, v, classes, summary)
+    return Assessment(sc, level, surface, connected, unconnected, v, classes, summary)
 
 
 def class_label(idx: int) -> str:

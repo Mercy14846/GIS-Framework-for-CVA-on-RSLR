@@ -8,7 +8,7 @@ async function get<T>(path: string, params: Record<string, string | number | boo
 }
 
 export const fetchAssessment = (v: ViewState, signal?: AbortSignal) =>
-  get<AssessmentResponse>("assessment", { pathway: v.pathway, year: v.year, subsidence: v.subsidence }, signal);
+  get<AssessmentResponse>("assessment", { pathway: v.pathway, year: v.year, subsidence: v.subsidence, water_level: v.waterLevel }, signal);
 
 export const fetchCompare = (v: ViewState, signal?: AbortSignal) =>
-  get<CompareResponse>("compare", { year: v.year }, signal);
+  get<CompareResponse>("compare", { year: v.year, water_level: v.waterLevel }, signal);
