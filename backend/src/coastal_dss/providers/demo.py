@@ -58,11 +58,21 @@ class DemoProvider:
     def sea_mask(self) -> np.ndarray:
         return self._dist < 0
 
-    def subsidence_rate_mm_yr(self) -> np.ndarray:
+    # Layers that draw noise are cached so every call (and every scenario) sees the same data.
+    @cached_property
+    def _subsidence(self) -> np.ndarray:
         x, _ = self._xy
         d = np.clip(self._dist, 0, None)
         s = 2.0 + 38.0 * np.exp(-d / 0.08) * (0.6 + 0.4 * x)
         return np.clip(s + self._smooth_noise(2.0), 0.0, 40.0)
+
+    def subsidence_rate_mm_yr(self) -> np.ndarray:
+        return self._subsidence
+
+    @cached_property
+    def _shoreline(self) -> np.ndarray:
+        d = np.clip(self._dist, 0, None)
+        return 4.0 * np.exp(-d / 0.05) * (0.5 + np.abs(self._smooth_noise(1.0)))
 
     @cached_property
     def _pop(self) -> np.ndarray:
@@ -81,7 +91,7 @@ class DemoProvider:
         d = np.clip(self._dist, 0, None)
         gy, gx = np.gradient(np.where(self.sea_mask(), 0, self._elev))
         slope = np.hypot(gx, gy)
-        shoreline = 4.0 * np.exp(-d / 0.05) * (0.5 + np.abs(self._smooth_noise(1.0)))
+        shoreline = self._shoreline
         geomorph = np.where(d < 0.06, 5.0, np.where(d < 0.2, 3.0, 1.0))
         return {
             "elevation": (self._elev, True),
