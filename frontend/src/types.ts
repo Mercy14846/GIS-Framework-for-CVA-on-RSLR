@@ -6,6 +6,8 @@ export const BASEMAP_LABEL: Record<Basemap, string> = { satellite: "Satellite", 
 export type Pathway = "ssp245" | "ssp585";
 export const PATHWAY_LABEL: Record<Pathway, string> = { ssp245: "SSP2-4.5", ssp585: "SSP5-8.5" };
 export const PATHWAYS = Object.keys(PATHWAY_LABEL) as Pathway[];
+/** Plain-language name for each pathway, shown under its code. */
+export const PATHWAY_HINT: Record<Pathway, string> = { ssp245: "Intermediate", ssp585: "High emissions" };
 export const HORIZONS = [2030, 2050, 2100] as const;
 export type Horizon = (typeof HORIZONS)[number];
 
